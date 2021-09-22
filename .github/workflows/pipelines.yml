@@ -34,3 +34,15 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+      - name: jFrog CLI for Artifactory
+        # You may pin to the exact commit or the version.
+        # uses: advancedcsg-open/action-jfrog-cli@313e1c521402e7239d3facaf9b039f01a4e95e25
+        uses: advancedcsg-open/action-jfrog-cli@v1.2.0
+        with:
+          # URL of Artifactory instance
+          url: https://roysps.jfrog.io/artifactory/royspstest-gradle-maven-remote/
+          # Type of authentication to use. Must be one of username, apikey or accesstoken. Defaults to apikey
+          credentials type: AKCp8k7uWD5xgNdy1sBXnA9ePDy2WF4QMKe7Lw2VRTUhuh3SaL6q6kydqQxUSaHwPf7Q5Nq2R
+          # Username for Artifactory. Must be supplied when credentials type is username
+       
+     
