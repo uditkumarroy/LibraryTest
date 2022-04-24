@@ -1,7 +1,12 @@
 plugins {
     id 'com.android.library'
     id 'kotlin-android'
+    id 'com.jfrog.artifactory'
+    id 'maven-publish'
 }
+
+def packageName = 'com.android'
+def libraryVersion = '1.0.7'
 
 android {
     compileSdkVersion 30
@@ -32,6 +37,66 @@ android {
     }
 }
 
+
+
+artifactory {
+    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        repository {
+            repoKey = 'default-gradle-dev-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+            ivy {
+                ivyLayout = '[organization]/[module]/[revision]/[module]-[revision](-[classifier]).pom'
+                artifactLayout = '[organization]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]'
+                mavenCompatible = true
+            }
+        }
+
+        defaults {
+            publications('aar')
+            // Properties to be attached to the published artifacts.
+            properties = ['qa.level': 'basic', 'dev.team': 'core']
+            publishConfigs('archives', 'published')
+            publishBuildInfo = true
+            publishArtifacts = true
+            publishPom = true
+            publishIvy = true
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'default-gradle-dev'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+            ivy {
+                ivyLayout = '[organization]/[module]/[revision]/[module]-[revision](-[classifier]).pom'
+                artifactLayout = '[organization]/[module]/[revision]/[module]-[revision](-[classifier]).[ext]'
+                mavenCompatible = true
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId packageName
+            version = libraryVersion
+            artifactId project.getName()
+
+
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+        }
+    }
+    artifactoryPublish {
+
+        publications(publishing.publications.aar)
+
+    }
+}
 dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
