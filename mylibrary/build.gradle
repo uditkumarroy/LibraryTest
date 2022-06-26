@@ -6,7 +6,7 @@ plugins {
 }
 
 def packageName = 'com.android'
-def libraryVersion = '1.0.7'
+def libraryVersion = '1.0.10'
 
 android {
     compileSdkVersion 30
@@ -55,10 +55,8 @@ artifactory {
         }
 
         defaults {
-            publications('aar')
             // Properties to be attached to the published artifacts.
             properties = ['qa.level': 'basic', 'dev.team': 'core']
-            publishConfigs('archives', 'published')
             publishBuildInfo = true
             publishArtifacts = true
             publishPom = true
@@ -80,23 +78,29 @@ artifactory {
     }
 }
 
-publishing {
-    publications {
-        aar(MavenPublication) {
-            groupId packageName
-            version = libraryVersion
-            artifactId project.getName()
 
 
-            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+afterEvaluate {
+
+
+    publishing {
+        publications {
+            release(MavenPublication) {
+                groupId packageName
+                version = libraryVersion
+                artifactId project.getName()
+
+                from components.release
+            }
+        }
+        artifactoryPublish {
+
+            publications(publishing.publications.release)
+
         }
     }
-    artifactoryPublish {
-
-        publications(publishing.publications.aar)
-
-    }
 }
+
 dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
